@@ -23,27 +23,31 @@ function App() {
       console.log('Received battleStart event:', battleData);
       setWaiting(false);
       setBattle(battleData);
-      setMessages([]); // Réinitialiser les messages
+      setMessages([]);
     });
     socket.on('newTurn', (battleData) => {
       console.log('Received newTurn event:', battleData);
       setBattle(battleData);
     });
-    socket.on('turnResult', ({ battle, results }) => {
-      console.log('Received turnResult event:', battle, results);
+    socket.on('turnResult', ({ battle, result }) => {
+      console.log('Received turnResult event:', battle, result);
       setBattle(battle);
-      const newMessages = results.map(result => 
-        `${result.attacker} used ${result.move} on ${result.defender}, dealing ${result.damage} damage!`
-      );
-      setMessages(prev => [...prev, ...newMessages].slice(-10)); // Garder les 10 derniers messages
+      const message = {
+        text: `${result.attacker} used ${result.move} on ${result.defender}, dealing ${result.damage} damage!`,
+        attacker: result.attacker,
+        defender: result.defender,
+        damage: result.damage
+      };
+      setMessages(prev => [...prev, message].slice(-10));
+      console.log('Added message:', message);
     });
     socket.on('battleEnd', ({ winner, reason }) => {
       console.log('Received battleEnd event:', winner, reason);
-      setMessages(prev => [...prev, winner ? `${winner} wins!` : reason || 'Draw!']);
+      setMessages(prev => [...prev, { text: winner ? `${winner} wins!` : reason || 'Draw!', attacker: null, defender: null, damage: 0 }]);
       setTimeout(() => {
         setBattle(null);
         setMessages([]);
-      }, 3000); // Attendre 3 secondes avant de réinitialiser
+      }, 3000);
     });
 
     return () => socket.off();

@@ -29,7 +29,6 @@ io.on('connection', (socket) => {
       waitingPlayer.join(battleId);
       socket.join(battleId);
 
-      // Lancer le premier tour
       console.log('Starting battle:', battleId);
       startTurn(battleId);
       io.to(battleId).emit('battleStart', battle.getPublicData());
@@ -44,14 +43,12 @@ io.on('connection', (socket) => {
     const battle = battles.get(battleId);
     if (!battle) return;
 
-    // Enregistrer le choix du joueur
     const playerIndex = battle.players.findIndex(p => p.id === socket.id);
     if (playerIndex !== -1) {
       console.log(`Player ${socket.id} selected move: ${moveIndex} in battle ${battleId}`);
       battle.setMove(playerIndex, moveIndex);
       io.to(battleId).emit('moveSelected', { playerId: socket.id });
 
-      // Vérifier si les deux joueurs ont choisi
       if (battle.moves.every(move => move !== null)) {
         console.log('Both players have chosen, playing turn');
         clearTimeout(battle.timer);
@@ -65,7 +62,6 @@ io.on('connection', (socket) => {
     if (waitingPlayer === socket) {
       waitingPlayer = null;
     }
-    // Supprimer la bataille si un joueur se déconnecte
     for (const [battleId, battle] of battles) {
       if (battle.players.some(p => p.id === socket.id)) {
         io.to(battleId).emit('battleEnd', { winner: null, reason: 'Opponent disconnected' });
@@ -79,39 +75,67 @@ io.on('connection', (socket) => {
     const battle = battles.get(battleId);
     if (!battle) return;
 
-    // Réinitialiser les choix
     battle.moves = [null, null];
-
-    // Informer les joueurs du nouveau tour
     console.log('Emitting newTurn for battle:', battleId);
     io.to(battleId).emit('newTurn', battle.getPublicData());
 
-    // Lancer le timer de 30 secondes
     battle.timer = setTimeout(() => {
       console.log('Timer expired, playing turn for battle:', battleId);
       playTurn(battleId);
     }, 30000);
   }
 
-  function playTurn(battleId) {
+  async function playTurn(battleId) {
     const battle = battles.get(battleId);
     if (!battle) return;
 
-    // Exécuter le tour
-    const results = battle.playTurn();
+    const order = battle.players[0].pokemon.speed > battle.players[1].pokemon.speed ? [0, 1] : [1, 0];
 
-    // Diffuser les résultats
-    console.log('Emitting turnResult for battle:', battleId, results);
-    io.to(battleId).emit('turnResult', { battle: battle.getPublicData(), results });
+    // Traiter chaque attaque individuellement
+    for (const attackerIndex of order) {
+      const defenderIndex = 1 - attackerIndex;
+      const move = battle.moves[attackerIndex];
+      const attacker = battle.players[attackerIndex].pokemon;
+      const defender = battle.players[defenderIndex].pokemon;
 
-    // Vérifier si la bataille est terminée
+      if (move === null) {
+        const result = {
+          attacker: attacker.name,
+          defender: defender.name,
+          move: 'None',
+          damage: 0
+        };
+        console.log('Emitting turnResult for battle:', battleId, result);
+        io.to(battleId).emit('turnResult', { battle: battle.getPublicData(), result });
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        continue;
+      }
+
+      // Nouvelle formule de calcul des dégâts
+      let damage = move.name === 'Growl' || move.name === 'Leech Seed' ? 0 : Math.floor((move.power * (attacker.attack / defender.defense)) / 2) + 5;
+      damage = Math.max(5, damage); // Minimum 5 dégâts pour éviter 0
+      defender.currentHp = Math.max(0, defender.currentHp - damage);
+
+      const result = {
+        attacker: attacker.name,
+        defender: defender.name,
+        move: move.name,
+        damage: damage
+      };
+
+      console.log('Emitting turnResult for battle:', battleId, result);
+      io.to(battleId).emit('turnResult', { battle: battle.getPublicData(), result });
+
+      // Ajouter un délai pour laisser le temps aux animations
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+
     if (battle.isFinished()) {
       const winner = battle.players.find(player => player.pokemon.currentHp > 0);
       console.log('Battle ended, winner:', winner ? winner.username : null);
       io.to(battleId).emit('battleEnd', { winner: winner ? winner.username : null });
       battles.delete(battleId);
     } else {
-      // Lancer le tour suivant
       startTurn(battleId);
     }
   }

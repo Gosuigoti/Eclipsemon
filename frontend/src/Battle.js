@@ -5,7 +5,12 @@ function Battle({ battle, socket, username, messages }) {
   const [timeLeft, setTimeLeft] = useState(30);
   const [hasSelected, setHasSelected] = useState(false);
   const [opponentSelected, setOpponentSelected] = useState(false);
-  const [shaking, setShaking] = useState({ player: false, opponent: false }); // Suivre les animations de secousse
+  const [animations, setAnimations] = useState({
+    attacking: null, // Nom du Pokémon attaquant
+    shaking: null, // Nom du Pokémon secoué
+    blinking: null // Nom du Pokémon dont la barre scintille
+  });
+
   const player = battle.players.find(p => p.username === username);
   const opponent = battle.players.find(p => p.username !== username);
 
@@ -35,21 +40,49 @@ function Battle({ battle, socket, username, messages }) {
     return isPlayer ? sprites[pokemonName].back : sprites[pokemonName].front;
   };
 
-  // Déclencher la secousse lorsqu’un Pokémon est touché
+  // Déclencher les animations pour chaque nouveau message
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage) {
-      if (lastMessage.includes(`${player.pokemon.name}, dealing`) && lastMessage.includes('damage')) {
-        setShaking(prev => ({ ...prev, player: true }));
-        setTimeout(() => setShaking(prev => ({ ...prev, player: false })), 500); // Durée de l’animation
-      }
-      if (lastMessage.includes(`${opponent.pokemon.name}, dealing`) && lastMessage.includes('damage')) {
-        setShaking(prev => ({ ...prev, opponent: true }));
-        setTimeout(() => setShaking(prev => ({ ...prev, opponent: false })), 500);
-      }
+    if (lastMessage && lastMessage.attacker) {
+      // Déclencher l’animation d’attaque pour l’attaquant
+      setAnimations({ attacking: lastMessage.attacker, shaking: null, blinking: null });
+      setTimeout(() => {
+        // Après 0.5s, déclencher la secousse et le scintillement pour la cible
+        setAnimations({
+          attacking: null,
+          shaking: lastMessage.defender,
+          blinking: lastMessage.defender
+        });
+        setTimeout(() => {
+          // Après 0.5s, réinitialiser les animations
+          setAnimations({ attacking: null, shaking: null, blinking: null });
+        }, 500);
+      }, 500);
     }
   }, [messages, player.pokemon.name, opponent.pokemon.name]);
 
+  useEffect(() => {
+    socket.on('newTurn', () => {
+      console.log('Received newTurn event');
+      setTimeLeft(30);
+      setHasSelected(false);
+      setOpponentSelected(false);
+    });
+
+    socket.on('moveSelected', ({ playerId }) => {
+      console.log('Received moveSelected event for player:', playerId);
+      if (playerId !== socket.id) {
+        setOpponentSelected(true);
+      }
+    });
+
+    return () => {
+      socket.off('newTurn');
+      socket.off('moveSelected');
+    };
+  }, [socket]);
+
+  // Initialiser le timer
   useEffect(() => {
     console.log('Battle component mounted, initializing timer');
     let timer = setInterval(() => {
@@ -62,37 +95,11 @@ function Battle({ battle, socket, username, messages }) {
       });
     }, 1000);
 
-    socket.on('newTurn', () => {
-      console.log('Received newTurn event');
-      setTimeLeft(30);
-      setHasSelected(false);
-      setOpponentSelected(false);
-      clearInterval(timer);
-      timer = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    });
-
-    socket.on('moveSelected', ({ playerId }) => {
-      console.log('Received moveSelected event for player:', playerId);
-      if (playerId !== socket.id) {
-        setOpponentSelected(true);
-      }
-    });
-
     return () => {
       console.log('Battle component unmounted, cleaning up');
       clearInterval(timer);
-      socket.off('newTurn');
-      socket.off('moveSelected');
     };
-  }, [socket]);
+  }, []);
 
   const handleMove = (moveIndex) => {
     if (!hasSelected) {
@@ -111,7 +118,7 @@ function Battle({ battle, socket, username, messages }) {
             <div>{opponent.pokemon.name}</div>
             <div className="health-bar">
               <div
-                className={`health-fill ${getHealthColor(opponentHpPercent)} ${shaking.opponent ? 'blink' : ''}`}
+                className={`health-fill ${getHealthColor(opponentHpPercent)} ${animations.blinking === opponent.pokemon.name ? 'blink' : ''}`}
                 style={{ width: `${opponentHpPercent}%` }}
               ></div>
             </div>
@@ -120,7 +127,7 @@ function Battle({ battle, socket, username, messages }) {
           <img
             src={getPokemonSprite(opponent.pokemon.name, false)}
             alt={opponent.pokemon.name}
-            className={`pokemon-sprite ${shaking.opponent ? 'shake' : ''}`}
+            className={`pokemon-sprite ${animations.attacking === opponent.pokemon.name ? 'attack' : ''} ${animations.shaking === opponent.pokemon.name ? 'shake' : ''}`}
           />
         </div>
 
@@ -130,7 +137,7 @@ function Battle({ battle, socket, username, messages }) {
             <div>{player.pokemon.name}</div>
             <div className="health-bar">
               <div
-                className={`health-fill ${getHealthColor(playerHpPercent)} ${shaking.player ? 'blink' : ''}`}
+                className={`health-fill ${getHealthColor(playerHpPercent)} ${animations.blinking === player.pokemon.name ? 'blink' : ''}`}
                 style={{ width: `${playerHpPercent}%` }}
               ></div>
             </div>
@@ -139,7 +146,7 @@ function Battle({ battle, socket, username, messages }) {
           <img
             src={getPokemonSprite(player.pokemon.name, true)}
             alt={player.pokemon.name}
-            className={`pokemon-sprite ${shaking.player ? 'shake' : ''}`}
+            className={`pokemon-sprite ${animations.attacking === player.pokemon.name ? 'attack' : ''} ${animations.shaking === player.pokemon.name ? 'shake' : ''}`}
           />
         </div>
       </div>
@@ -147,7 +154,7 @@ function Battle({ battle, socket, username, messages }) {
       {/* Messages des attaques */}
       <div className="messages-container">
         {messages.map((msg, index) => (
-          <div key={index} className="message animate-message">{msg}</div>
+          <div key={index} className="message animate-message">{msg.text}</div>
         ))}
       </div>
 
