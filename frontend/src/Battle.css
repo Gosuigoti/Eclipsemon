@@ -1,14 +1,16 @@
+/* Import a Pokémon-like font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Anime+Ace&display=swap');
+
 .battle-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   height: 100vh;
-  background-image: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/6b0a1e5f-9f6b-4c0d-8d82-edeb0a80fd33/dfzm5e8-6f7e5c0e-4c1e-4b8e-9c1e-1e8e1e1e1e1e.png/v1/fill/w_1192,h_670,q_70,strp/pokemon_battle_background_by_pokepika_dfzm5e8-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzIwIiwicGF0aCI6IlwvZlwvNmIwYTFlNWYtOWY2Yi00YzBkLThkODItZWRlYjBhODBmZDMzXC9kZmptNWU4LTZmN2U1YzBlLTRjMWUtNGI4ZS05YzFlLTFlOGUxZTFlMWUxZS5wbmciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.7l7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z');
   background-size: cover;
   background-position: center;
   padding: 20px;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Anime Ace', 'Arial', sans-serif;
 }
 
 .battle-field {
@@ -20,16 +22,33 @@
   position: relative;
 }
 
-.pokemon-player {
+.pokemon-player, .pokemon-opponent {
   position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pokemon-player {
   bottom: 10px;
   left: 50px;
 }
 
 .pokemon-opponent {
-  position: absolute;
   top: 10px;
   right: 50px;
+}
+
+/* Circular platforms beneath Pokémon */
+.pokemon-player::after, .pokemon-opponent::after {
+  content: '';
+  width: 180px;
+  height: 60px;
+  background: radial-gradient(circle, #d0d0d0 50%, #a0a0a0 100%);
+  position: absolute;
+  bottom: -10px;
+  border-radius: 50%;
+  z-index: -1;
 }
 
 .pokemon-sprite {
@@ -46,41 +65,65 @@
   animation: attack 0.5s ease;
 }
 
+.pokemon-type {
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.effectiveness-message {
+  position: absolute;
+  top: -30px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 5px 10px;
+  border-radius: 5px;
+  animation: fadeInOut 2s ease;
+}
+
 .health-bar-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 10px;
 }
 
 .health-bar-container.opponent {
-  align-items: flex-end;
+  align-items: center;
 }
 
 .health-bar {
   width: 200px;
   height: 20px;
-  background-color: #ccc;
+  background-color: #ddd;
   border: 2px solid #000;
-  border-radius: 5px;
+  border-radius: 10px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   overflow: hidden;
+  position: relative;
 }
 
 .health-fill {
   height: 100%;
-  transition: width 0.8s ease; /* Transition pour la barre de vie */
+  transition: width 0.8s ease;
 }
 
 .health-fill.green {
-  background-color: #4caf50;
+  background: linear-gradient(to right, #4caf50, #66bb6a);
 }
 
 .health-fill.yellow {
-  background-color: #ffeb3b;
+  background: linear-gradient(to right, #ffeb3b, #ffee58);
 }
 
 .health-fill.red {
-  background-color: #f44336;
+  background: linear-gradient(to right, #f44336, #ef5350);
 }
 
 .health-fill.blink {
@@ -91,32 +134,51 @@
   font-size: 14px;
   font-weight: bold;
   margin-top: 5px;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+
+.moves-section {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 800px;
+  margin-top: 20px;
 }
 
 .moves-container {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-top: 20px;
+  width: 50%;
+  background-color: #e0e0e0;
+  border: 3px solid #000;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
 }
 
 .move-button {
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #2196f3;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  background: linear-gradient(to bottom, #f0f0f0, #d0d0d0);
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s, background 0.3s;
+  font-family: 'Anime Ace', 'Arial', sans-serif;
 }
 
 .move-button:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
+  background: linear-gradient(to bottom, #ffffff, #e0e0e0);
 }
 
 .move-button:disabled {
-  background-color: #cccccc;
+  background: linear-gradient(to bottom, #cccccc, #b0b0b0);
   cursor: not-allowed;
   transform: none;
 }
@@ -125,26 +187,15 @@
   animation: pulse 1s infinite;
 }
 
-.messages-container {
-  width: 100%;
-  max-width: 800px;
-  background-color: rgba(255, 255, 255, 0.9);
-  border: 2px solid #000;
-  border-radius: 5px;
-  padding: 10px;
-  min-height: 100px;
-  max-height: 150px;
-  overflow-y: auto;
-  margin-top: 20px;
+.timer-section {
+  text-align: center;
+  margin-top: 10px;
   font-size: 14px;
-}
-
-.message {
-  margin: 5px 0;
-}
-
-.message.animate-message {
-  animation: slideIn 0.5s ease;
+  font-family: 'Anime Ace', 'Arial', sans-serif;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 5px 10px;
+  border-radius: 5px;
 }
 
 /* Animations */
@@ -162,11 +213,6 @@
   100% { opacity: 1; }
 }
 
-@keyframes slideIn {
-  0% { opacity: 0; transform: translateX(-20px); }
-  100% { opacity: 1; transform: translateX(0); }
-}
-
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
@@ -177,4 +223,59 @@
   0% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.1); opacity: 0.7; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(10px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(10px); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .pokemon-sprite {
+    width: 100px;
+    height: 100px;
+  }
+
+  .pokemon-player::after, .pokemon-opponent::after {
+    width: 120px;
+    height: 40px;
+  }
+
+  .health-bar {
+    width: 150px;
+    height: 15px;
+  }
+
+  .health-text {
+    font-size: 12px;
+  }
+
+  .pokemon-type {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
+
+  .effectiveness-message {
+    font-size: 14px;
+    padding: 3px 6px;
+  }
+
+  .moves-container {
+    width: 70%;
+    gap: 5px;
+    padding: 10px;
+  }
+
+  .move-button {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .timer-section {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
 }
