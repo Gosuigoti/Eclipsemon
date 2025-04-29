@@ -1,15 +1,41 @@
 import { useState, useEffect } from 'react';
+import './Battle.css';
 
-function Battle({ battle, socket, username }) {
+function Battle({ battle, socket, username, messages }) {
   const [timeLeft, setTimeLeft] = useState(30);
   const [hasSelected, setHasSelected] = useState(false);
   const [opponentSelected, setOpponentSelected] = useState(false);
   const player = battle.players.find(p => p.username === username);
   const opponent = battle.players.find(p => p.username !== username);
 
+  // Calculer le pourcentage de HP
+  const playerHpPercent = (player.pokemon.currentHp / player.pokemon.hp) * 100;
+  const opponentHpPercent = (opponent.pokemon.currentHp / opponent.pokemon.hp) * 100;
+
+  // Déterminer la couleur de la barre de vie
+  const getHealthColor = (percent) => {
+    if (percent > 50) return 'green';
+    if (percent > 20) return 'yellow';
+    return 'red';
+  };
+
+  // Sélectionner les sprites en fonction du Pokémon
+  const getPokemonSprite = (pokemonName, isPlayer) => {
+    const sprites = {
+      Pikachu: {
+        back: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/25.png',
+        front: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png'
+      },
+      Bulbasaur: {
+        back: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/1.png',
+        front: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png'
+      }
+    };
+    return isPlayer ? sprites[pokemonName].back : sprites[pokemonName].front;
+  };
+
   useEffect(() => {
     console.log('Battle component mounted, initializing timer');
-    // Initialiser le timer pour le premier tour
     let timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -20,13 +46,12 @@ function Battle({ battle, socket, username }) {
       });
     }, 1000);
 
-    // Écouter les nouveaux tours
     socket.on('newTurn', () => {
       console.log('Received newTurn event');
       setTimeLeft(30);
       setHasSelected(false);
       setOpponentSelected(false);
-      clearInterval(timer); // Arrêter le timer précédent
+      clearInterval(timer);
       timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
@@ -62,25 +87,73 @@ function Battle({ battle, socket, username }) {
   };
 
   return (
-    <div>
-      <h2>Battle: {player.pokemon.name} vs {opponent.pokemon.name}</h2>
-      <p>Your HP: {player.pokemon.currentHp}</p>
-      <p>Opponent HP: {opponent.pokemon.currentHp}</p>
-      <p>Time left: {timeLeft}s</p>
-      <p>{hasSelected ? 'You have selected your move' : 'Choose your move'}</p>
-      <p>{opponentSelected ? 'Opponent has selected their move' : 'Waiting for opponent to choose'}</p>
-      <h3>Your moves:</h3>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+    <div className="battle-container">
+      <div className="battle-field">
+        {/* Pokémon adverse */}
+        <div className="pokemon-opponent">
+          <div className="health-bar-container opponent">
+            <div>{opponent.pokemon.name}</div>
+            <div className="health-bar">
+              <div
+                className={`health-fill ${getHealthColor(opponentHpPercent)}`}
+                style={{ width: `${opponentHpPercent}%` }}
+              ></div>
+            </div>
+            <div className="health-text">{`${opponent.pokemon.currentHp}/${opponent.pokemon.hp}`}</div>
+          </div>
+          <img
+            src={getPokemonSprite(opponent.pokemon.name, false)}
+            alt={opponent.pokemon.name}
+            className="pokemon-sprite"
+          />
+        </div>
+
+        {/* Pokémon du joueur */}
+        <div className="pokemon-player">
+          <div className="health-bar-container">
+            <div>{player.pokemon.name}</div>
+            <div className="health-bar">
+              <div
+                className={`health-fill ${getHealthColor(playerHpPercent)}`}
+                style={{ width: `${playerHpPercent}%` }}
+              ></div>
+            </div>
+            <div className="health-text">{`${player.pokemon.currentHp}/${player.pokemon.hp}`}</div>
+          </div>
+          <img
+            src={getPokemonSprite(player.pokemon.name, true)}
+            alt={player.pokemon.name}
+            className="pokemon-sprite"
+          />
+        </div>
+      </div>
+
+      {/* Messages des attaques */}
+      <div className="messages-container">
+        {messages.map((msg, index) => (
+          <div key={index}>{msg}</div>
+        ))}
+      </div>
+
+      {/* Menu des attaques */}
+      <div className="moves-container">
         {player.pokemon.moves.map((move, index) => (
           <button
             key={move.name}
             onClick={() => handleMove(index)}
             disabled={hasSelected}
-            style={{ padding: '10px', cursor: hasSelected ? 'not-allowed' : 'pointer' }}
+            className="move-button"
           >
             {move.name}
           </button>
         ))}
+      </div>
+
+      {/* Statut du tour */}
+      <div>
+        <p>Time left: {timeLeft}s</p>
+        <p>{hasSelected ? 'You have selected your move' : 'Choose your move'}</p>
+        <p>{opponentSelected ? 'Opponent has selected their move' : 'Waiting for opponent to choose'}</p>
       </div>
     </div>
   );

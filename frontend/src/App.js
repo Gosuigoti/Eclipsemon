@@ -9,6 +9,7 @@ function App() {
   const [username, setUsername] = useState('');
   const [battle, setBattle] = useState(null);
   const [waiting, setWaiting] = useState(false);
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     console.log('App useEffect: Registering Socket.IO events');
@@ -22,6 +23,7 @@ function App() {
       console.log('Received battleStart event:', battleData);
       setWaiting(false);
       setBattle(battleData);
+      setMessages([]); // Réinitialiser les messages
     });
     socket.on('newTurn', (battleData) => {
       console.log('Received newTurn event:', battleData);
@@ -30,14 +32,18 @@ function App() {
     socket.on('turnResult', ({ battle, results }) => {
       console.log('Received turnResult event:', battle, results);
       setBattle(battle);
-      results.forEach(result => {
-        alert(`${result.attacker} used ${result.move} on ${result.defender}, dealing ${result.damage} damage!`);
-      });
+      const newMessages = results.map(result => 
+        `${result.attacker} used ${result.move} on ${result.defender}, dealing ${result.damage} damage!`
+      );
+      setMessages(prev => [...prev, ...newMessages].slice(-10)); // Garder les 10 derniers messages
     });
     socket.on('battleEnd', ({ winner, reason }) => {
       console.log('Received battleEnd event:', winner, reason);
-      alert(winner ? `${winner} wins!` : reason || 'Draw!');
-      setBattle(null);
+      setMessages(prev => [...prev, winner ? `${winner} wins!` : reason || 'Draw!']);
+      setTimeout(() => {
+        setBattle(null);
+        setMessages([]);
+      }, 3000); // Attendre 3 secondes avant de réinitialiser
     });
 
     return () => socket.off();
@@ -53,7 +59,7 @@ function App() {
     <div style={{ textAlign: 'center', padding: '20px' }}>
       {!username && <Login onLogin={handleLogin} />}
       {waiting && <p>Waiting for an opponent...</p>}
-      {battle && <Battle battle={battle} socket={socket} username={username} />}
+      {battle && <Battle battle={battle} socket={socket} username={username} messages={messages} />}
     </div>
   );
 }
