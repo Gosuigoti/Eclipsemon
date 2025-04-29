@@ -1,16 +1,31 @@
 /* Import a Pokémon-like font from Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Anime+Ace&display=swap');
 
+/* Reset default browser margins and padding */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden; /* Prevent scrollbars */
+}
+
 .battle-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   height: 100vh;
+  width: 100vw;
   background-size: cover;
   background-position: center;
-  padding: 20px;
+  background-repeat: no-repeat;
+  padding: 0; /* No padding to ensure full coverage */
   font-family: 'Anime Ace', 'Arial', sans-serif;
+  box-sizing: border-box;
+  position: fixed; /* Ensure the container stays fixed to the viewport */
+  top: 0;
+  left: 0;
 }
 
 .battle-field {
@@ -30,12 +45,12 @@
 }
 
 .pokemon-player {
-  bottom: 10px;
+  bottom: 50px; /* Lower the player Pokémon */
   left: 50px;
 }
 
 .pokemon-opponent {
-  top: 10px;
+  top: 50px; /* Lower the opponent Pokémon */
   right: 50px;
 }
 
@@ -44,17 +59,21 @@
   content: '';
   width: 180px;
   height: 60px;
-  background: radial-gradient(circle, #d0d0d0 50%, #a0a0a0 100%);
+  background: radial-gradient(circle, #c0b090 20%, #8a7a60 50%, #5a4a40 80%, #3a2a20 100%); /* Rocky texture with earthy tones */
   position: absolute;
   bottom: -10px;
   border-radius: 50%;
-  z-index: -1;
+  z-index: 1; /* Above background, below sprite */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Stronger shadow for depth */
+  border: 3px solid #4a3a30; /* Darker border to match rocky theme */
 }
 
 .pokemon-sprite {
   width: 150px;
   height: 150px;
   object-fit: contain;
+  position: relative;
+  z-index: 2; /* Ensure sprite is above the platform */
 }
 
 .pokemon-sprite.shake {
@@ -91,7 +110,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 20px; /* Increase space between health bar and Pokémon */
 }
 
 .health-bar-container.opponent {
@@ -146,6 +165,7 @@
   width: 100%;
   max-width: 800px;
   margin-top: 20px;
+  margin-bottom: 20px; /* Add margin to prevent cutoff */
 }
 
 .moves-container {
@@ -190,6 +210,7 @@
 .timer-section {
   text-align: center;
   margin-top: 10px;
+  margin-bottom: 20px; /* Add margin to prevent cutoff */
   font-size: 14px;
   font-family: 'Anime Ace', 'Arial', sans-serif;
   color: #fff;
@@ -244,6 +265,16 @@
     height: 40px;
   }
 
+  .pokemon-player {
+    bottom: 30px;
+    left: 30px;
+  }
+
+  .pokemon-opponent {
+    top: 30px;
+    right: 30px;
+  }
+
   .health-bar {
     width: 150px;
     height: 15px;
@@ -251,6 +282,7 @@
 
   .health-text {
     font-size: 12px;
+    padding: 3px 6px;
   }
 
   .pokemon-type {
@@ -277,5 +309,6 @@
   .timer-section {
     font-size: 12px;
     padding: 3px 6px;
+    margin-bottom: 10px;
   }
 }

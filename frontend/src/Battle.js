@@ -48,13 +48,14 @@ function Battle({ battle, socket, username, messages }) {
   // Placeholder move types (replace with actual data from your backend)
   const moveTypes = player.pokemon.moves.map((move) => {
     switch (move.name.toLowerCase()) {
-      case 'thunderbolt':
-        return 'Electric';
-      case 'quick attack':
+      case 'vine whip':
+        return 'Grass';
       case 'tackle':
         return 'Normal';
       case 'growl':
         return 'Normal';
+      case 'leech seed':
+        return 'Grass';
       default:
         return 'Normal';
     }
@@ -62,11 +63,10 @@ function Battle({ battle, socket, username, messages }) {
 
   // Simple type effectiveness logic (expand as needed)
   const calculateEffectiveness = (moveType, targetTypes) => {
-    // Example effectiveness rules (simplified)
     const effectivenessChart = {
-      Electric: {
+      Grass: {
         Grass: 0.5, // Not very effective
-        Poison: 1 // Neutral
+        Poison: 0.5 // Not very effective
       },
       Normal: {
         Grass: 1, // Neutral
