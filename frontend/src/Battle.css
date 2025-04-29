@@ -1,123 +1,170 @@
 .battle-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    height: 100vh;
-    background-image: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/6b0a1e5f-9f6b-4c0d-8d82-edeb0a80fd33/dfzm5e8-6f7e5c0e-4c1e-4b8e-9c1e-1e8e1e1e1e1e.png/v1/fill/w_1192,h_670,q_70,strp/pokemon_battle_background_by_pokepika_dfzm5e8-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzIwIiwicGF0aCI6IlwvZlwvNmIwYTFlNWYtOWY2Yi00YzBkLThkODItZWRlYjBhODBmZDMzXC9kZmptNWU4LTZmN2U1YzBlLTRjMWUtNGI4ZS05YzFlLTFlOGUxZTFlMWUxZS5wbmciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.7l7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z');
-    background-size: cover;
-    background-position: center;
-    padding: 20px;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  .battle-field {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 800px;
-    height: 60%;
-    position: relative;
-  }
-  
-  .pokemon-player {
-    position: absolute;
-    bottom: 10px;
-    left: 50px;
-  }
-  
-  .pokemon-opponent {
-    position: absolute;
-    top: 10px;
-    right: 50px;
-  }
-  
-  .pokemon-sprite {
-    width: 150px;
-    height: 150px;
-    object-fit: contain;
-  }
-  
-  .health-bar-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 10px;
-  }
-  
-  .health-bar-container.opponent {
-    align-items: flex-end;
-  }
-  
-  .health-bar {
-    width: 200px;
-    height: 20px;
-    background-color: #ccc;
-    border: 2px solid #000;
-    border-radius: 5px;
-    overflow: hidden;
-  }
-  
-  .health-fill {
-    height: 100%;
-    transition: width 0.5s ease;
-  }
-  
-  .health-fill.green {
-    background-color: #4caf50;
-  }
-  
-  .health-fill.yellow {
-    background-color: #ffeb3b;
-  }
-  
-  .health-fill.red {
-    background-color: #f44336;
-  }
-  
-  .health-text {
-    font-size: 14px;
-    font-weight: bold;
-    margin-top: 5px;
-  }
-  
-  .moves-container {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
-  }
-  
-  .move-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #2196f3;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .move-button:hover {
-    background-color: #1976d2;
-  }
-  
-  .move-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-  }
-  
-  .messages-container {
-    width: 100%;
-    max-width: 800px;
-    background-color: rgba(255, 255, 255, 0.9);
-    border: 2px solid #000;
-    border-radius: 5px;
-    padding: 10px;
-    min-height: 100px;
-    max-height: 150px;
-    overflow-y: auto;
-    margin-top: 20px;
-    font-size: 14px;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100vh;
+  background-image: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/6b0a1e5f-9f6b-4c0d-8d82-edeb0a80fd33/dfzm5e8-6f7e5c0e-4c1e-4b8e-9c1e-1e8e1e1e1e1e.png/v1/fill/w_1192,h_670,q_70,strp/pokemon_battle_background_by_pokepika_dfzm5e8-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzIwIiwicGF0aCI6IlwvZlwvNmIwYTFlNWYtOWY2Yi00YzBkLThkODItZWRlYjBhODBmZDMzXC9kZmptNWU4LTZmN2U1YzBlLTRjMWUtNGI4ZS05YzFlLTFlOGUxZTFlMWUxZS5wbmciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.7l7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z7z');
+  background-size: cover;
+  background-position: center;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+.battle-field {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 800px;
+  height: 60%;
+  position: relative;
+}
+
+.pokemon-player {
+  position: absolute;
+  bottom: 10px;
+  left: 50px;
+}
+
+.pokemon-opponent {
+  position: absolute;
+  top: 10px;
+  right: 50px;
+}
+
+.pokemon-sprite {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+}
+
+.pokemon-sprite.shake {
+  animation: shake 0.5s ease;
+}
+
+.health-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.health-bar-container.opponent {
+  align-items: flex-end;
+}
+
+.health-bar {
+  width: 200px;
+  height: 20px;
+  background-color: #ccc;
+  border: 2px solid #000;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.health-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.health-fill.green {
+  background-color: #4caf50;
+}
+
+.health-fill.yellow {
+  background-color: #ffeb3b;
+}
+
+.health-fill.red {
+  background-color: #f44336;
+}
+
+.health-fill.blink {
+  animation: blink 0.5s ease 2;
+}
+
+.health-text {
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.moves-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.move-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.move-button:hover {
+  transform: scale(1.1);
+}
+
+.move-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.move-button.hover-pulse {
+  animation: pulse 1s infinite;
+}
+
+.messages-container {
+  width: 100%;
+  max-width: 800px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid #000;
+  border-radius: 5px;
+  padding: 10px;
+  min-height: 100px;
+  max-height: 150px;
+  overflow-y: auto;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.message {
+  margin: 5px 0;
+}
+
+.message.animate-message {
+  animation: slideIn 0.5s ease;
+}
+
+/* Animations */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+@keyframes slideIn {
+  0% { opacity: 0; transform: translateX(-20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
